@@ -3,4 +3,12 @@
     <color name="primary">#424242</color>
     <color name="primary_dark">#212121</color>
     <color name="accent">@color/primary</color>
+    <color name="neon_body">#BEFF09</color>
+    <color name="neon_glow">#CBBCFF00</color>
+    <color name="shadow_start_color">#131313</color>
+    <color name="shadow_start_end">#000000</color>
+    <!--    <color name="activity_color">#E3A25F</color>-->
+    <color name="activity_color">#A9D47F</color>
+    <color name="shadow_color">#99393939</color>
+    <color name="red_color">#B7124C</color>
 </resources>

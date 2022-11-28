@@ -29,54 +29,54 @@ afterEvaluate {
         }
     }
 
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { deployment -> signing.signPom(deployment) }
-
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https:/oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                pom.project {
-                    name 'CircularProgressBar'
-                    packaging 'aar'
-                    // optionally artifactId can be defined here
-                    description 'This is an Android project allowing to realize a circular ProgressBar in the simplest way possible.'
-                    url 'https://github.com/lopspower/CircularProgressBar'
-
-                    groupId = libraryGroupId
-                    artifactId = libraryArtifactId
-                    version = libraryVersion
-
-                    scm {
-                        connection 'scm:git:https://github.com/lopspower/CircularProgressBar'
-                        developerConnection 'scm:git:https://github.com/lopspower/CircularProgressBar'
-                        url 'https://github.com/lopspower/CircularProgressBar'
-                    }
-
-                    licenses {
-                        license {
-                            name 'The Apache License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id 'mikhael.lopez'
-                            name 'Mikhael LOPEZ'
-                            email 'lopez.mikhael@gmail.com'
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    uploadArchives {
+//        repositories {
+//            mavenDeployer {
+//                beforeDeployment { deployment -> signing.signPom(deployment) }
+//
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                snapshotRepository(url: "https:/oss.sonatype.org/content/repositories/snapshots/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                pom.project {
+//                    name 'CircularProgressBar'
+//                    packaging 'aar'
+//                    // optionally artifactId can be defined here
+//                    description 'This is an Android project allowing to realize a circular ProgressBar in the simplest way possible.'
+//                    url 'https://github.com/lopspower/CircularProgressBar'
+//
+//                    groupId = libraryGroupId
+//                    artifactId = libraryArtifactId
+//                    version = libraryVersion
+//
+//                    scm {
+//                        connection 'scm:git:https://github.com/lopspower/CircularProgressBar'
+//                        developerConnection 'scm:git:https://github.com/lopspower/CircularProgressBar'
+//                        url 'https://github.com/lopspower/CircularProgressBar'
+//                    }
+//
+//                    licenses {
+//                        license {
+//                            name 'The Apache License, Version 2.0'
+//                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                        }
+//                    }
+//
+//                    developers {
+//                        developer {
+//                            id 'mikhael.lopez'
+//                            name 'Mikhael LOPEZ'
+//                            email 'lopez.mikhael@gmail.com'
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     task androidSourcesJar(type: Jar) {
         archiveClassifier.set('sources')
