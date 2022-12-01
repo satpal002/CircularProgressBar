@@ -504,10 +504,6 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
                             if (progressDirectionIndeterminateMode.isToRight()) updateAngle else -updateAngle
                 }
 
-                if (value >= 100) {
-                    backgroundProgressBarWidth = progressBarWidth
-                    backgroundProgressBarColor = progressBarColor
-                }
             }
         }
 
