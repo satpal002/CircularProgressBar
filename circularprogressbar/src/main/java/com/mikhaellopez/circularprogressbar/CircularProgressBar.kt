@@ -9,6 +9,7 @@ import android.os.Handler
 import android.util.AttributeSet
 import android.view.View
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 /**
  * Copyright (C) 2019 Mikhael LOPEZ
@@ -22,6 +23,8 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         private const val DEFAULT_ANIMATION_DURATION = 1500L
     }
 
+    var startWithFadedColor: Boolean = false
+
     // Properties
     private var progressAnimator: ValueAnimator? = null
     private var indeterminateModeHandler: Handler? = null
@@ -33,6 +36,10 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         style = Paint.Style.STROKE
     }
     private var foregroundPaint: Paint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+    }
+    private var foregroundPaintForFading: Paint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
     }
@@ -57,11 +64,13 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         set(value) {
             field = value.dpToPx()
             foregroundPaint.strokeWidth = field
-            shadowPaint.strokeWidth = field /1.01f
+            foregroundPaintForFading.strokeWidth = field
+            shadowPaint.strokeWidth = field / 1.01f
             requestLayout()
             invalidate()
         }
-    var backgroundProgressBarWidth: Float = resources.getDimension(R.dimen.default_background_stroke_width)
+    var backgroundProgressBarWidth: Float =
+        resources.getDimension(R.dimen.default_background_stroke_width)
         set(value) {
             field = value.dpToPx()
             backgroundPaint.strokeWidth = field
@@ -81,6 +90,12 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
             invalidate()
         }
     var shadowColorStart: Int? = null
+        set(value) {
+            field = value
+            manageColor()
+            invalidate()
+        }
+    var shadowColor: Int = Color.BLACK
         set(value) {
             field = value
             manageColor()
@@ -134,6 +149,7 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
             field = value
             shadowPaint.strokeCap = if (field) Paint.Cap.ROUND else Paint.Cap.BUTT
             foregroundPaint.strokeCap = if (field) Paint.Cap.ROUND else Paint.Cap.BUTT
+            foregroundPaintForFading.strokeCap = Paint.Cap.BUTT
             invalidate()
         }
     var startAngle: Float = DEFAULT_START_ANGLE
@@ -191,7 +207,8 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         if (indeterminateMode) {
             postIndeterminateModeHandler()
             // whatever you want to do below
-            this@CircularProgressBar.progressDirectionIndeterminateMode = this@CircularProgressBar.progressDirectionIndeterminateMode.reverse()
+            this@CircularProgressBar.progressDirectionIndeterminateMode =
+                this@CircularProgressBar.progressDirectionIndeterminateMode.reverse()
             if (this@CircularProgressBar.progressDirectionIndeterminateMode.isToRight()) {
                 setProgressWithAnimation(0f, 1500)
             } else {
@@ -211,41 +228,80 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
 
     private fun init(context: Context, attrs: AttributeSet?) {
         // Load the styled attributes and set their properties
-        val attributes = context.theme.obtainStyledAttributes(attrs, R.styleable.CircularProgressBar, 0, 0)
+        val attributes =
+            context.theme.obtainStyledAttributes(attrs, R.styleable.CircularProgressBar, 0, 0)
 
         // Value
         progress = attributes.getFloat(R.styleable.CircularProgressBar_cpb_progress, progress)
-        progressMax = attributes.getFloat(R.styleable.CircularProgressBar_cpb_progress_max, progressMax)
+        progressMax =
+            attributes.getFloat(R.styleable.CircularProgressBar_cpb_progress_max, progressMax)
 
         // StrokeWidth
-        progressBarWidth = attributes.getDimension(R.styleable.CircularProgressBar_cpb_progressbar_width, progressBarWidth).pxToDp()
-        backgroundProgressBarWidth = attributes.getDimension(R.styleable.CircularProgressBar_cpb_background_progressbar_width, backgroundProgressBarWidth).pxToDp()
+        progressBarWidth = attributes.getDimension(
+            R.styleable.CircularProgressBar_cpb_progressbar_width,
+            progressBarWidth
+        ).pxToDp()
+        backgroundProgressBarWidth = attributes.getDimension(
+            R.styleable.CircularProgressBar_cpb_background_progressbar_width,
+            backgroundProgressBarWidth
+        ).pxToDp()
 
         // Color
-        progressBarColor = attributes.getInt(R.styleable.CircularProgressBar_cpb_progressbar_color, progressBarColor)
+        progressBarColor = attributes.getInt(
+            R.styleable.CircularProgressBar_cpb_progressbar_color,
+            progressBarColor
+        )
         attributes.getColor(R.styleable.CircularProgressBar_cpb_progressbar_color_start, 0)
             .also { if (it != 0) progressBarColorStart = it }
         attributes.getColor(R.styleable.CircularProgressBar_cpb_progressbar_color_end, 0)
             .also { if (it != 0) progressBarColorEnd = it }
-        progressBarColorDirection = attributes.getInteger(R.styleable.CircularProgressBar_cpb_progressbar_color_direction, progressBarColorDirection.value).toGradientDirection()
-        backgroundProgressBarColor = attributes.getInt(R.styleable.CircularProgressBar_cpb_background_progressbar_color, backgroundProgressBarColor)
-        attributes.getColor(R.styleable.CircularProgressBar_cpb_background_progressbar_color_start, 0)
+        shadowColor = attributes.getInt(
+            R.styleable.CircularProgressBar_cpb_shadow_color,
+            shadowColor
+        )
+        attributes.getColor(R.styleable.CircularProgressBar_cpb_shadow_color_start, 0)
+            .also { if (it != 0) shadowColorStart = it }
+        attributes.getColor(R.styleable.CircularProgressBar_cpb_shadow_color_end, 0)
+            .also { if (it != 0) shadowColorEnd = it }
+
+        progressBarColorDirection = attributes.getInteger(
+            R.styleable.CircularProgressBar_cpb_progressbar_color_direction,
+            progressBarColorDirection.value
+        ).toGradientDirection()
+        backgroundProgressBarColor = attributes.getInt(
+            R.styleable.CircularProgressBar_cpb_background_progressbar_color,
+            backgroundProgressBarColor
+        )
+        attributes.getColor(
+            R.styleable.CircularProgressBar_cpb_background_progressbar_color_start,
+            0
+        )
             .also { if (it != 0) backgroundProgressBarColorStart = it }
         attributes.getColor(R.styleable.CircularProgressBar_cpb_background_progressbar_color_end, 0)
             .also { if (it != 0) backgroundProgressBarColorEnd = it }
-        backgroundProgressBarColorDirection = attributes.getInteger(R.styleable.CircularProgressBar_cpb_background_progressbar_color_direction, backgroundProgressBarColorDirection.value).toGradientDirection()
+        backgroundProgressBarColorDirection = attributes.getInteger(
+            R.styleable.CircularProgressBar_cpb_background_progressbar_color_direction,
+            backgroundProgressBarColorDirection.value
+        ).toGradientDirection()
 
         // Progress Direction
-        progressDirection = attributes.getInteger(R.styleable.CircularProgressBar_cpb_progress_direction, progressDirection.value).toProgressDirection()
+        progressDirection = attributes.getInteger(
+            R.styleable.CircularProgressBar_cpb_progress_direction,
+            progressDirection.value
+        ).toProgressDirection()
 
         // Round Border
-        roundBorder = attributes.getBoolean(R.styleable.CircularProgressBar_cpb_round_border, roundBorder)
+        roundBorder =
+            attributes.getBoolean(R.styleable.CircularProgressBar_cpb_round_border, roundBorder)
 
         // Angle
         startAngle = attributes.getFloat(R.styleable.CircularProgressBar_cpb_start_angle, 0f)
 
         // Indeterminate Mode
-        indeterminateMode = attributes.getBoolean(R.styleable.CircularProgressBar_cpb_indeterminate_mode, indeterminateMode)
+        indeterminateMode = attributes.getBoolean(
+            R.styleable.CircularProgressBar_cpb_indeterminate_mode,
+            indeterminateMode
+        )
 
         attributes.recycle()
     }
@@ -268,14 +324,40 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         super.onDraw(canvas)
 
         canvas.drawOval(rectF, backgroundPaint)
-        val realProgress = (if (indeterminateMode) progressIndeterminateMode else progress) * DEFAULT_MAX_VALUE / progressMax
+        val realProgress =
+            (if (indeterminateMode) progressIndeterminateMode else progress) * DEFAULT_MAX_VALUE / progressMax
 
-        val isToRightFromIndeterminateMode = indeterminateMode && progressDirectionIndeterminateMode.isToRight()
+        val isToRightFromIndeterminateMode =
+            indeterminateMode && progressDirectionIndeterminateMode.isToRight()
         val isToRightFromNormalMode = !indeterminateMode && progressDirection.isToRight()
-        val angle = (if (isToRightFromIndeterminateMode || isToRightFromNormalMode) 360 else -360) * realProgress / 100
+        val angle =
+            (if (isToRightFromIndeterminateMode || isToRightFromNormalMode) 360 else -360) * realProgress / 100
 
-        canvas.drawArc(rectF, if (indeterminateMode) startAngleIndeterminateMode else startAngle , angle+2f, false, shadowPaint)
-        canvas.drawArc(rectF, if (indeterminateMode) startAngleIndeterminateMode else startAngle, angle, false, foregroundPaint)
+        if (progress > 0) {
+            canvas.drawArc(
+                rectF,
+                if (indeterminateMode) startAngleIndeterminateMode else startAngle,
+                angle + 2f,
+                false,
+                shadowPaint
+            )
+        }
+        canvas.drawArc(
+            rectF,
+            if (indeterminateMode) startAngleIndeterminateMode else startAngle,
+            angle,
+            false,
+            foregroundPaint
+        )
+        if (startWithFadedColor) {
+            canvas.drawArc(
+                rectF,
+                startAngle - 20,
+                20f,
+                false,
+                foregroundPaintForFading
+            )
+        }
 
 
     }
@@ -285,21 +367,32 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
     }
 
     private fun manageColor() {
-        foregroundPaint.shader = createLinearGradient(progressBarColorStart ?: progressBarColor,
-            progressBarColorEnd ?: progressBarColor, progressBarColorDirection)
+        foregroundPaint.shader = createLinearGradient(
+            progressBarColorStart ?: progressBarColor,
+            progressBarColorEnd ?: progressBarColor, progressBarColorDirection
+        )
 
-        shadowPaint.shader = createLinearGradientShadow( shadowColorStart ?: progressBarColor,
-            shadowColorEnd ?: progressBarColor, progressBarColorDirection)
+        foregroundPaintForFading.shader = createLinearGradientForFading( progressBarColor, GradientDirection.TOP_TO_BOTTOM)
+
+        shadowPaint.shader = createLinearGradientShadow(
+            shadowColorStart ?: shadowColor,
+            shadowColorEnd ?: shadowColor, progressBarColorDirection
+        )
     }
 
     private fun manageBackgroundProgressBarColor() {
         backgroundPaint.shader = createLinearGradient(
             backgroundProgressBarColorStart ?: backgroundProgressBarColor,
             backgroundProgressBarColorEnd ?: backgroundProgressBarColor,
-            backgroundProgressBarColorDirection)
+            backgroundProgressBarColorDirection
+        )
     }
 
-    private fun createLinearGradient(startColor: Int, endColor: Int, gradientDirection: GradientDirection): LinearGradient {
+    private fun createLinearGradient(
+        startColor: Int,
+        endColor: Int,
+        gradientDirection: GradientDirection
+    ): LinearGradient {
         var x0 = 0f
         var y0 = 0f
         var x1 = 0f
@@ -313,7 +406,11 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         return LinearGradient(x0, y0, x1, y1, startColor, endColor, Shader.TileMode.CLAMP)
     }
 
-    private fun createLinearGradientShadow(startColor: Int, endColor: Int, gradientDirection: GradientDirection): LinearGradient {
+    private fun createLinearGradientShadow(
+        startColor: Int,
+        endColor: Int,
+        gradientDirection: GradientDirection
+    ): LinearGradient {
         var x0 = 0f
         var y0 = 0f
         var x1 = 0f
@@ -333,6 +430,29 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
 //        )
 //        return LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.CLAMP)
     }
+
+    private fun createLinearGradientForFading(
+        endColor: Int,
+        gradientDirection: GradientDirection
+    ): LinearGradient {
+        var x0 = 0f
+        var y0 = 0f
+        var x1 = 0f
+        var y1 = 0f
+        when (gradientDirection) {
+            GradientDirection.LEFT_TO_RIGHT -> x1 = width.toFloat()
+            GradientDirection.RIGHT_TO_LEFT -> x0 = width.toFloat()
+            GradientDirection.TOP_TO_BOTTOM -> y1 = height.toFloat()
+            GradientDirection.BOTTOM_TO_END -> y0 = height.toFloat()
+        }
+//        return LinearGradient(x0, y0, x1, y1, startColor, endColor, Shader.TileMode.CLAMP)
+        val positions = floatArrayOf(0.25f, 0.4f)
+        val colors = intArrayOf(
+            adjustAlpha(endColor, 0.1f),
+            endColor
+        )
+        return LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.CLAMP)
+    }
     //endregion
 
     //region Measure Method
@@ -341,8 +461,14 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         val width = getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
         val min = min(width, height)
         setMeasuredDimension(min, min)
-        val highStroke = if (progressBarWidth > backgroundProgressBarWidth) progressBarWidth else backgroundProgressBarWidth
-        rectF.set(0 + highStroke / 2, 0 + highStroke / 2, min - highStroke / 2, min - highStroke / 2)
+        val highStroke =
+            if (progressBarWidth > backgroundProgressBarWidth) progressBarWidth else backgroundProgressBarWidth
+        rectF.set(
+            0 + highStroke / 2,
+            0 + highStroke / 2,
+            min - highStroke / 2,
+            min - highStroke / 2
+        )
     }
     //endregion
 
@@ -355,12 +481,17 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
      * @param startDelay [Long] optional, null by default.
      */
     @JvmOverloads
-    fun setProgressWithAnimation(progress: Float,
-                                 duration: Long? = null,
-                                 interpolator: TimeInterpolator? = null,
-                                 startDelay: Long? = null) {
+    fun setProgressWithAnimation(
+        progress: Float,
+        duration: Long? = null,
+        interpolator: TimeInterpolator? = null,
+        startDelay: Long? = null
+    ) {
         progressAnimator?.cancel()
-        progressAnimator = ValueAnimator.ofFloat(if (indeterminateMode) progressIndeterminateMode else this.progress, progress)
+        progressAnimator = ValueAnimator.ofFloat(
+            if (indeterminateMode) progressIndeterminateMode else this.progress,
+            progress
+        )
         duration?.also { progressAnimator?.duration = it }
         interpolator?.also { progressAnimator?.interpolator = it }
         startDelay?.also { progressAnimator?.startDelay = it }
@@ -428,6 +559,14 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
         RIGHT_TO_LEFT(2),
         TOP_TO_BOTTOM(3),
         BOTTOM_TO_END(4)
+    }
+
+    private fun adjustAlpha(color: Int, factor: Float): Int {
+        val alpha = (Color.alpha(color) * factor).roundToInt()
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+        return Color.argb(alpha, red, green, blue)
     }
 
 }

@@ -29,5 +29,9 @@
             <flag name="to_right" value="1" />
             <flag name="to_left" value="2" />
         </attr>
+
+        <attr name="cpb_shadow_color" format="color" />
+        <attr name="cpb_shadow_color_start" format="color" />
+        <attr name="cpb_shadow_color_end" format="color" />
     </declare-styleable>
 </resources>

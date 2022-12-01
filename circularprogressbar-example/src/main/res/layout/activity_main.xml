@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1E1E"
+    android:background="#FBF6F6"
     android:gravity="center"
     android:orientation="vertical">
 
@@ -24,11 +24,13 @@
         <com.mikhaellopez.circularprogressbar.CircularProgressBar
             android:id="@+id/circularProgressBar"
             android:layout_width="wrap_content"
-            app:cpb_progress="65"
+            app:cpb_progress="1"
             android:layout_height="150dp"
+            app:cpb_start_angle="0"
             app:cpb_background_progressbar_color="#CD077D"
             app:cpb_background_progressbar_width="24dp"
             app:cpb_progress_direction="to_right"
+            app:cpb_shadow_color="#fff444"
             app:cpb_progressbar_color="#3f51b5"
             app:cpb_progressbar_width="24dp"
             app:cpb_round_border="true" />
