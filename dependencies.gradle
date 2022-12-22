@@ -7,8 +7,8 @@ allprojects {
 
 ext {
     // APP VERSION
-    androidVersionCode          = 3
-    androidVersionName          = '1.0.3'
+    androidVersionCode          = 4
+    androidVersionName          = '1.0.4'
     libraryGroupId              = 'com.mikhaellopez'
     libraryArtifactId           = 'circularprogressbar'
     libraryVersion              = androidVersionName

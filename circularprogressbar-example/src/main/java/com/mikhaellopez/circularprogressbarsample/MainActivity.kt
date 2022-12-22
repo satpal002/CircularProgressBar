@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         circularProgressBar.onIndeterminateModeChangeListener =
             { switchIndeterminateMode.isChecked = it }
 
+        restartAnimation()
         findViewById<Button>(R.id.btnRestart).setOnClickListener {
             restartAnimation()
         }
@@ -88,16 +89,21 @@ class MainActivity : AppCompatActivity() {
             circularProgressBar.backgroundProgressBarWidth = 20f
             circularProgressBar.progress = 0.5f
             circularProgressBar.startWithFadedColor = false
-            circularProgressBar.setProgressWithAnimation(20f, 600)
+            circularProgressBar.setProgressWithAnimation(26f, 500)
             Handler().postDelayed({
-                circularProgressBar.startAngle = 80f
-                circularProgressBar.progressBarColor = resources.getColor(R.color.red_color)
-                circularProgressBar.progress = 1f
-                circularProgressBar.progressBarColorEnd = resources.getColor(R.color.transparent)
-                circularProgressBar.shadowColorEnd = resources.getColor(R.color.transparent)
-                circularProgressBar.progressBarColorStart = resources.getColor(R.color.red_color)
                 circularProgressBar.startWithFadedColor = true
-                circularProgressBar.setProgressWithAnimation(100f, 1000)
+                circularProgressBar.progressFadeEffectStartColorAlpha = 0.0f
+                circularProgressBar.progressFadeStartColorPosition = 0.25f
+                circularProgressBar.progressFadeEndColorPosition = 0.45f
+
+                circularProgressBar.startAngle = 90f
+                circularProgressBar.progressBarColor = resources.getColor(R.color.red_color)
+                circularProgressBar.progress = 10f
+                circularProgressBar.progressBarColorEnd = resources.getColor(R.color.transparent)
+                circularProgressBar.shadowColorEnd = resources.getColor(R.color.neon_body)
+                circularProgressBar.progressBarColorStart = resources.getColor(R.color.red_color)
+                circularProgressBar.setProgressWithAnimation(95f, 800)
+
                 Handler().postDelayed({
                     circularProgressBar.progressBarColorEnd = null
                     circularProgressBar.shadowColorEnd = resources.getColor(R.color.shadow_color)
@@ -107,8 +113,8 @@ class MainActivity : AppCompatActivity() {
                     circularProgressBar.progressBarWidth = 20f
                     circularProgressBar.backgroundProgressBarWidth = 20f
                     circularProgressBar.progress = 0.5f
-                    circularProgressBar.setProgressWithAnimation(5f, 300)}, 900)
-            }, 600)
+                    circularProgressBar.setProgressWithAnimation(5f, 300)}, 750)
+            }, 450)
         }, 800)
         circularProgressBar.progressBarColor = resources.getColor(R.color.activity_color)
         circularProgressBar.backgroundProgressBarColor = resources.getColor(R.color.shadow_color)

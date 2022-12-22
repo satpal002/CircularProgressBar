@@ -24,6 +24,10 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
     }
 
     var startWithFadedColor: Boolean = false
+    var progressFadeEffectStartColorAlpha: Float = 0f
+    var progressFadeStartColorPosition: Float = 0.33f
+    var progressFadeEndColorPosition: Float = 0.43f
+    var progressBarColorDirectionFading: GradientDirection = GradientDirection.TOP_TO_BOTTOM
 
     // Properties
     private var progressAnimator: ValueAnimator? = null
@@ -372,7 +376,13 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
             progressBarColorEnd ?: progressBarColor, progressBarColorDirection
         )
 
-        foregroundPaintForFading.shader = createLinearGradientForFading( progressBarColor, GradientDirection.TOP_TO_BOTTOM)
+        foregroundPaintForFading.shader = createLinearGradientForFading(
+            progressBarColor,
+            progressBarColorDirectionFading,
+            progressFadeEffectStartColorAlpha,
+            progressFadeStartColorPosition,
+            progressFadeEndColorPosition
+        )
 
         shadowPaint.shader = createLinearGradientShadow(
             shadowColorStart ?: shadowColor,
@@ -433,7 +443,10 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
 
     private fun createLinearGradientForFading(
         endColor: Int,
-        gradientDirection: GradientDirection
+        gradientDirection: GradientDirection,
+        startColorAlpha: Float,
+        startColorPosition: Float,
+        endColorPosition: Float
     ): LinearGradient {
         var x0 = 0f
         var y0 = 0f
@@ -446,12 +459,12 @@ class CircularProgressBar(context: Context, attrs: AttributeSet? = null) : View(
             GradientDirection.BOTTOM_TO_END -> y0 = height.toFloat()
         }
 //        return LinearGradient(x0, y0, x1, y1, startColor, endColor, Shader.TileMode.CLAMP)
-        val positions = floatArrayOf(0.25f, 0.4f)
+        val positions = floatArrayOf(startColorPosition, endColorPosition)
         val colors = intArrayOf(
-            adjustAlpha(endColor, 0.1f),
+            adjustAlpha(endColor, startColorAlpha),
             endColor
         )
-        return LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.CLAMP)
+        return LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.MIRROR)
     }
     //endregion
 
